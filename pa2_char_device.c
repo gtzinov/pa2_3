@@ -25,15 +25,16 @@ int currentPosition = 0;
 ssize_t pa2_char_driver_read (struct file *pfile, char __user *buffer, size_t length, loff_t *offset)
 {
 	*offset = currentPosition;
-	if (strlen(myBuffer) == 0){
+
+	if (strlen(myBuffer) == 0 || strlen(myBuffer) <= *offset){
 		printk("Nothing to read!\n");
 		return -1;
 	}
 	printk("Read: Offset before: %lld\n", *offset);
 	printk("Read: Length: %ld\n", length);
 
-	if (strlen(myBuffer) > length){
-		printk("User buffer is not big enough!\n");
+	if (strlen(myBuffer) < length){
+		printk("Trying to read too many bytes!\n");
 		return -1;
 	
 	}
@@ -43,6 +44,7 @@ ssize_t pa2_char_driver_read (struct file *pfile, char __user *buffer, size_t le
 		return -1;
 	}
 
+	//copy_to_user(buffer, myBuffer+*offset, strlen(myBuffer));
 	copy_to_user(buffer, myBuffer+*offset, length);
 	
 	*offset = *offset + length;
